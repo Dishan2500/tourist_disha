@@ -54,8 +54,32 @@ def load_model():
         except Exception as e:
             st.warning(f"Compatibility shim setup failed: {e}")
 
-        model = joblib.load(model_path)
-        return model
+        try:
+            model = joblib.load(model_path)
+            return model
+        except Exception as e:
+            st.warning(f"joblib.load failed: {e}. Attempting safe unpickle fallback.")
+            # Fallback: use a SafeUnpickler that dynamically creates placeholder
+            # classes for missing attributes referenced by the pickle.
+            try:
+                import io, pickle
+
+                class SafeUnpickler(pickle.Unpickler):
+                    def find_class(self, module, name):
+                        try:
+                            return super().find_class(module, name)
+                        except Exception:
+                            # Create a minimal placeholder class
+                            return type(name, (), {})
+
+                with open(model_path, "rb") as f:
+                    data = f.read()
+                obj = SafeUnpickler(io.BytesIO(data)).load()
+                st.info("Loaded model using safe unpickler fallback. Behavior may differ from original model.")
+                return obj
+            except Exception as e2:
+                st.error(f"Safe unpickle also failed: {e2}")
+                raise
     except Exception as e:
         st.error(f"Failed to load model from Hugging Face Hub: {e}")
         st.warning(
