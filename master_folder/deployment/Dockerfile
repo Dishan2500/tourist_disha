@@ -1,33 +1,19 @@
-# -------------------------
-#  Base Python Image
-# -------------------------
+
+# Use official Python image
 FROM python:3.10-slim
 
-# -------------------------
-#  Setup Working Directory
-# -------------------------
+# Set working directory
 WORKDIR /app
 
-# -------------------------
-#  Copy Project Files
-# -------------------------
-COPY . /app
-
-# -------------------------
-#  Install Dependencies
-# -------------------------
-RUN pip install --no-cache-dir --upgrade pip
+# Copy requirements and install
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install scikit-learn==1.6.1
 
-# -------------------------
-#  Expose Streamlit Port
-# -------------------------
+# Copy app code
+COPY app.py .
+
+# Expose Streamlit port
 EXPOSE 8501
 
-# -------------------------
-#  Run Streamlit App
-# -------------------------
-CMD ["streamlit", "run", "app.py", \
-     "--server.port=8501", \
-     "--server.address=0.0.0.0"]
+# Run the app
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
