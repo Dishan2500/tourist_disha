@@ -12,7 +12,8 @@ st.set_page_config(page_title="Wellness Tourism Purchase Predictor", layout="cen
 # --------------------------
 # Model repo that you uploaded earlier (change if different)
 MODEL_REPO_ID = "Disha252001/wellness-tourism-model"
-MODEL_FILENAME = "best_model.joblib"
+MODEL_FILENAME = "GradientBoosting_best_model.joblib"
+
 
 # Hugging Face token (should be set in env for private models)
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
