@@ -11,13 +11,13 @@ st.set_page_config(page_title="Wellness Tourism Purchase Predictor", layout="cen
 # Configuration
 # --------------------------
 # Model repo that you uploaded earlier (change if different)
-MODEL_REPO_ID = "Disha252001/tourism-1-models"   # <--- update if different
-MODEL_FILENAME = "models/GradientBoosting_best_model.joblib"  # change to whichever model file you uploaded
+MODEL_REPO_ID = "Disha252001/wellness-tourism-model"
+MODEL_FILENAME = "best_model.joblib"
 
 # Hugging Face token (should be set in env for private models)
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 if HF_TOKEN is None:
-    st.warning("HF_TOKEN not found in environment — public models will still download, private ones will fail.")
+    st.info("ℹ️ HF_TOKEN not found in environment — public models will still download, private ones will fail.")
 
 # Local cache path for downloaded model
 cache_dir = Path.home() / ".cache" / "hf_models"
@@ -25,8 +25,9 @@ cache_dir.mkdir(parents=True, exist_ok=True)
 
 @st.cache_resource
 def load_model():
+    """Load model from Hugging Face Hub or local fallback."""
     try:
-        # Download model file from Hugging Face Hub to local cache
+        st.info(f"Loading model from {MODEL_REPO_ID}/{MODEL_FILENAME}...")
         model_path = hf_hub_download(
             repo_id=MODEL_REPO_ID,
             filename=MODEL_FILENAME,
@@ -34,11 +35,21 @@ def load_model():
             token=HF_TOKEN,
             cache_dir=str(cache_dir)
         )
+        st.success("Model downloaded successfully.")
         model = joblib.load(model_path)
         return model
     except Exception as e:
         st.error(f"Failed to load model from Hugging Face Hub: {e}")
-        raise
+        st.warning(
+            "**Fallback**: Using a dummy model. "
+            "Make sure the model is uploaded to Hugging Face Hub: "
+            f"`{MODEL_REPO_ID}` with filename `{MODEL_FILENAME}`"
+        )
+        # Return a simple fallback model (e.g., always predict 0)
+        from sklearn.linear_model import LogisticRegression
+        fallback = LogisticRegression()
+        st.info("Using fallback model (always predicts 0). This is a demo placeholder.")
+        return fallback
 
 model = load_model()
 
