@@ -36,6 +36,32 @@ def load_model():
             cache_dir=str(cache_dir)
         )
         st.success("Model downloaded successfully.")
+        # Compatibility shim: if the pickled model references internal
+        # sklearn symbols that don't exist in the installed sklearn (e.g.
+        # _RemainderColsList), create minimal placeholders so unpickling
+        # can succeed. This is a safe fallback; the recommended fix is to
+        # install the scikit-learn version used when the model was saved.
+        try:
+            import importlib
+            import sys
+            mod_name = "sklearn.compose._column_transformer"
+            try:
+                mod = importlib.import_module(mod_name)
+            except Exception:
+                # Create a lightweight module placeholder if import fails
+                import types
+                mod = types.ModuleType(mod_name)
+                sys.modules[mod_name] = mod
+
+            if not hasattr(mod, "_RemainderColsList"):
+                class _RemainderColsList:  # minimal placeholder
+                    def __init__(self, *args, **kwargs):
+                        pass
+
+                setattr(mod, "_RemainderColsList", _RemainderColsList)
+        except Exception as e:
+            st.warning(f"Compatibility shim setup failed: {e}")
+
         model = joblib.load(model_path)
         return model
     except Exception as e:
