@@ -1,0 +1,60 @@
+name: ML Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  mlops-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1 — Checkout code
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    # Step 2 — Set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    # Step 3 — Install dependencies
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r deployment/requirements.txt
+
+    # Step 4 — Run training script
+    - name: Train ML Model
+      run: |
+        python training/train.py
+
+    # Step 5 — Upload best model to HuggingFace Hub
+    - name: Upload Model to HF Hub
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        python training/upload_model.py
+
+    # Step 6 — Push updated code automatically to GitHub main
+    - name: Commit and Push Changes to GitHub
+      run: |
+        git config user.email "github-actions@github.com"
+        git config user.name "GitHub Actions"
+        git add -A
+        git commit -m "Automated model update from pipeline" || echo "No changes to commit"
+        git push origin main
+
+    # Step 7 — Redeploy Hugging Face Space automatically
+    - name: Trigger Hugging Face Space Redeploy
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        curl -X POST \
+        -H "Authorization: Bearer $HF_TOKEN" \
+        https://huggingface.co/api/spaces/Disha252001/wellness-tourism-space/trigger-build
