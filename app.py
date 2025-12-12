@@ -36,6 +36,24 @@ def load_model():
             cache_dir=str(cache_dir)
         )
         st.success("Model downloaded successfully.")
+        # Compatibility shim for sklearn internal objects referenced in pickle
+        try:
+            import importlib, sys
+            mod_name = "sklearn.compose._column_transformer"
+            try:
+                mod = importlib.import_module(mod_name)
+            except Exception:
+                import types
+                mod = types.ModuleType(mod_name)
+                sys.modules[mod_name] = mod
+            if not hasattr(mod, "_RemainderColsList"):
+                class _RemainderColsList:
+                    def __init__(self, *args, **kwargs):
+                        pass
+                setattr(mod, "_RemainderColsList", _RemainderColsList)
+        except Exception as e:
+            st.warning(f"Compatibility shim setup failed: {e}")
+
         model = joblib.load(model_path)
         return model
     except Exception as e:
