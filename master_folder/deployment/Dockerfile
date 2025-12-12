@@ -1,19 +1,15 @@
+FROM python:3.10
 
-# Use official Python image
-FROM python:3.10-slim
-
-# Set working directory
+# Install dependencies
+COPY requirements.txt /app/requirements.txt
 WORKDIR /app
-
-# Copy requirements and install
-COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
-COPY app.py .
+# Copy the application
+COPY . /app
 
-# Expose Streamlit port
-EXPOSE 8501
+# Expose the correct port
+EXPOSE 7860
 
-# Run the app
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Hugging Face expects to run: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT
+CMD ["bash", "-c", "streamlit run app.py --server.address 0.0.0.0 --server.port $PORT"]
