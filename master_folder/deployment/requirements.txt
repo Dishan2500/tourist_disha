@@ -2,6 +2,6 @@ streamlit
 huggingface_hub
 joblib
 pandas
-scikit-learn
+scikit-learn==1.2.2
 numpy
 xgboost
