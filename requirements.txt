@@ -1,4 +1,7 @@
+streamlit
+huggingface_hub
+joblib
 pandas
 scikit-learn==1.6.1
-joblib
-huggingface-hub
+numpy
+xgboost
