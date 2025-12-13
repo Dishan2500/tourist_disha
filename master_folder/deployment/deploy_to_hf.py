@@ -6,7 +6,7 @@ if HF_TOKEN is None:
     raise ValueError("HF_TOKEN not found. Set it as an environment variable.")
 
 # Docker Space repo
-space_repo_id = "Disha252001/tourism-docker-space"
+space_repo_id = "Disha252001/Tourism"
 
 # Create the Space if it doesn't exist
 create_repo(

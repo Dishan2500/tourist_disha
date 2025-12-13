@@ -10,7 +10,7 @@ import joblib
 # --------------------------
 # Load trained model from Hugging Face
 # --------------------------
-model_repo_id = "Disha252001/tourism-best-model"
+model_repo_id = "Disha252001/Tourism"
 model_file = "best_model.pkl"
 
 local_model_path = hf_hub_download(repo_id=model_repo_id, filename=model_file)
