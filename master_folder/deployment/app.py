@@ -1,7 +1,7 @@
 import os
+
 os.environ["STREAMLIT_SERVER_ENABLE_CORS"] = "false"
 os.environ["STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION"] = "false"
-
 import streamlit as st
 import pandas as pd
 from huggingface_hub import hf_hub_download
